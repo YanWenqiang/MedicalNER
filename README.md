@@ -2,11 +2,11 @@
 使用sklearn_crf工具包，识别身体部位(body)以及疾病(disease)两类实体，其中crf_suite_model.m 是训练好的模型。
 
 ### 测试结果：
-> f1:  0.8846888913586788
+> f1:  0.885
 >
->  entity-level accuracy:  0.8907247383733553
+>  entity-level accuracy:  0.891
 > 
-> sentence-level accuracy:  0.9253466517710456
+> sentence-level accuracy:  0.925
 
 ||precision|recall|f1-score|support|
 |---|---|---|---|---|
