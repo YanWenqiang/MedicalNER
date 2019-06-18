@@ -21,17 +21,26 @@ def find_age(ss):
             if hasNumbers(i):
                 ans.append(re.findall('\d+',i)[0])
             else:
-                ans.append(i)
+                if len(re.findall('[一两二三四五六七八九十百]', i)) != 0:
+                    ans.append(i)
                 
     elif len(res2) > 0:
         for i in res2:
-            ans.append(i)
+            if len(re.findall('\d', i)) != 0:
+                
+                ans.append(i)
+            elif len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
+                ans.append(i)
     else:
         if len(re.findall('\d+', ss)) != 0:
-            ans.append(re.findall('\d+', ss)[0])
-    return ans
-
-
+            tmp = re.findall('\d+', ss)[0]
+            # if re.search('[周岁月年龄]', ss) and ss.find("孕") == -1:
+            if ss.find("个月") != -1 and (ss.find("宝宝") != -1 or ss.find("婴儿") != -1):
+                ss = ss.replace(tmp, "1")
+                ss = ss.replace("个月", "岁")
+                ans.append("1")
+                # ans.append(tmp)
+    return ans, ss
 
 def convert2han(ss):
     mapping = {"0": "零", "1": "一", "2": "二", "3": "三", "4": "四", "5": "五", "6": "六", "7": "七", "8": "八", "9": "九"}
@@ -72,7 +81,7 @@ def predict(sents, interactive = False):
     if interactive is False:
         fo = open(parse.output, "w", encoding = "utf-8")
     for s in sents:
-        age = find_age(s)
+        age, s = find_age(s)
         if len(age) == 0:
             if interactive is False:
                 write_file(s, age = None, fo = fo)
@@ -94,7 +103,24 @@ def predict(sents, interactive = False):
                 age = convert2han(age_d)
                 s = s.replace(age_d, age)
                 end = len(age)
+                
+            else:
+                age_d = age
+                
+                start = 0
+                while  age_d[start] not in "零一两二三四五六七八九十百": 
+                    
+                    start += 1
+                end = len(age_d)
+                while  age_d[end - 1] not in "零一两二三四五六七八九十百" :
+                    
+                    end -= 1
+                
+                age = age_d[start:end]
+                
 
+            begin = s.find(age)
+            end = len(age)
             if interactive is False:
                 write_file(s, age, begin, end + begin, fo)
             else:
