@@ -245,6 +245,8 @@ def predict(sents, interactive = False):
             lines = write_file(tmp_queries, query_pred)
             for line in lines:
                 print(line)
+    if interactive is False:
+        fo.close()
         
 
 if __name__ == "__main__":
