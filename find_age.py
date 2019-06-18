@@ -21,13 +21,12 @@ def find_age(ss):
             if hasNumbers(i):
                 ans.append(re.findall('\d+',i)[0])
             else:
-                if len(re.findall('[一两二三四五六七八九十百]', i)) != 0:
+                if len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                     ans.append(i)
                 
     elif len(res2) > 0:
         for i in res2:
             if len(re.findall('\d', i)) != 0:
-                
                 ans.append(i)
             elif len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                 ans.append(i)
@@ -35,7 +34,12 @@ def find_age(ss):
         if ss.find("个月") != -1 and (ss.find("宝宝") != -1 or ss.find("婴儿") != -1):
             idx = ss.find("个月")
             tmp = ss[max(0,idx - 3): idx]
-            ans.append(tmp)
+            f = 0
+            for i in tmp:
+                if i in "0123456789零一两二三四五六七八九十百":
+                    f = 1
+            if f == 1:
+                ans.append(tmp)
         
     return ans
 
@@ -105,6 +109,7 @@ def predict(sents, interactive = False):
                 age_d = age
                 
                 start = 0
+                print(age_d, s)
                 while  age_d[start] not in "零一两二三四五六七八九十百": 
                     
                     start += 1
@@ -115,14 +120,14 @@ def predict(sents, interactive = False):
                 new_age = age.replace("两", "二")
             s = s.replace(age, new_age)
                 
-            if new_age + "个月" in s: # 处理不满一岁或者一岁左右婴儿的情况
+            if new_age + "个月" in s: # 处理不满一岁或者一岁左右婴儿的情况,全部将婴儿换成1岁
                 s = s.replace(new_age, "一")
                 new_age = "一"
                 s = s.replace("个月", "岁")
         
             begin = s.find(new_age)
             end = len(new_age)
-            print(s, begin,end, new_age)    
+            # print(s, begin,end, new_age)    
 
             if interactive is False:
                 write_file(s, new_age, begin, end + begin, fo)
