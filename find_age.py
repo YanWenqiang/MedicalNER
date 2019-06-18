@@ -31,10 +31,7 @@ def find_age(ss):
                 ans.append(i)
             elif len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                 ans.append(i)
-    else:
-        # if len(re.findall('\d+', ss)) != 0:
-        #     tmp = re.findall('\d+', ss)[0]
-            # if re.search('[周岁月年龄]', ss) and ss.find("孕") == -1:
+    else: # 婴儿案例
         if ss.find("个月") != -1 and (ss.find("宝宝") != -1 or ss.find("婴儿") != -1):
             idx = ss.find("个月")
             tmp = ss[max(0,idx - 3): idx]
@@ -82,16 +79,16 @@ def predict(sents, interactive = False):
         fo = open(parse.output, "w", encoding = "utf-8")
     for s in sents:
         age = find_age(s)
-        if len(age) == 0:
+        if len(age) == 0: # 样例中没有年龄实体
             if interactive is False:
                 write_file(s, age = None, fo = fo)
             else:
                 write_file(s, age = None, fo = None)
-        else:
+        else: # 样例中出现年龄
             age = age[0]
             begin = s.find(age)
             end = len(age)
-            if hasNumbers(age):
+            if hasNumbers(age):# 年龄以数字的形式出现
                 age_d = age
                 start = 0
                 while not age_d[start].isdigit(): 
@@ -100,11 +97,11 @@ def predict(sents, interactive = False):
                 while not age_d[end - 1].isdigit():
                     end -= 1
                 age_d = age_d[start:end]
-                age = convert2han(age_d)
-                s = s.replace(age_d, age)
-                end = len(age)
+                new_age = convert2han(age_d)
+                s = s.replace(age_d, new_age)
+                end = len(new_age)
                 
-            else:
+            else: # 年龄以汉字的形式出现
                 age_d = age
                 
                 start = 0
@@ -113,24 +110,24 @@ def predict(sents, interactive = False):
                     start += 1
                 end = len(age_d)
                 while  age_d[end - 1] not in "零一两二三四五六七八九十百" :
-                    
                     end -= 1
-                
                 age = age_d[start:end]
+                new_age = age.replace("两", "二")
+            s = s.replace(age, new_age)
                 
-            if age + "个月" in s:
-                s = s.replace(age, "一")
-                age = "一"
+            if new_age + "个月" in s: # 处理不满一岁或者一岁左右婴儿的情况
+                s = s.replace(new_age, "一")
+                new_age = "一"
                 s = s.replace("个月", "岁")
         
-            begin = s.find(age)
-            end = len(age)
-            print(s, begin,end, age)    
+            begin = s.find(new_age)
+            end = len(new_age)
+            print(s, begin,end, new_age)    
 
             if interactive is False:
-                write_file(s, age, begin, end + begin, fo)
+                write_file(s, new_age, begin, end + begin, fo)
             else:
-                write_file(s, age, begin, begin + end, None)
+                write_file(s, new_age, begin, begin + end, None)
         
         
     if interactive is False:
