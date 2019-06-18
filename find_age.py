@@ -32,15 +32,15 @@ def find_age(ss):
             elif len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                 ans.append(i)
     else:
-        if len(re.findall('\d+', ss)) != 0:
-            tmp = re.findall('\d+', ss)[0]
+        # if len(re.findall('\d+', ss)) != 0:
+        #     tmp = re.findall('\d+', ss)[0]
             # if re.search('[周岁月年龄]', ss) and ss.find("孕") == -1:
-            if ss.find("个月") != -1 and (ss.find("宝宝") != -1 or ss.find("婴儿") != -1):
-                ss = ss.replace(tmp, "1")
-                ss = ss.replace("个月", "岁")
-                ans.append("1")
-                # ans.append(tmp)
-    return ans, ss
+        if ss.find("个月") != -1 and (ss.find("宝宝") != -1 or ss.find("婴儿") != -1):
+            idx = ss.find("个月")
+            tmp = ss[max(0,idx - 3): idx]
+            ans.append(tmp)
+        
+    return ans
 
 def convert2han(ss):
     mapping = {"0": "零", "1": "一", "2": "二", "3": "三", "4": "四", "5": "五", "6": "六", "7": "七", "8": "八", "9": "九"}
@@ -81,7 +81,7 @@ def predict(sents, interactive = False):
     if interactive is False:
         fo = open(parse.output, "w", encoding = "utf-8")
     for s in sents:
-        age, s = find_age(s)
+        age = find_age(s)
         if len(age) == 0:
             if interactive is False:
                 write_file(s, age = None, fo = fo)
@@ -118,9 +118,15 @@ def predict(sents, interactive = False):
                 
                 age = age_d[start:end]
                 
-
+            if age + "个月" in s:
+                s = s.replace(age, "一")
+                age = "一"
+                s = s.replace("个月", "岁")
+        
             begin = s.find(age)
             end = len(age)
+            print(s, begin,end, age)    
+
             if interactive is False:
                 write_file(s, age, begin, end + begin, fo)
             else:
@@ -139,7 +145,7 @@ if __name__ == "__main__":
     # s14 = "我儿子今年28岁，身高175公分"
     # s15 = "我儿子今年二十八岁，身高175公分"
     # s16 = "我儿子二十八岁，身高175公分"
-    # s17 = "我儿子血压100， 年龄28"
+    # s17 = "三个月的宝宝吃什么好"
     # sents = [s11, s12 ,s13, s14, s15, s16, s17]
 
     sents = []
