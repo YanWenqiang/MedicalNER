@@ -20,6 +20,7 @@
 
 
 ### 使用方法：
+#### 疾病身体部位实体
 > 1.单句预测
 ```sh
 python predict.py 
@@ -29,4 +30,15 @@ python predict.py
 > 2.批量预测
 ```sh
 python predict.py --input=/path/to/inputfile --output=/path/to/outputfile
+```
+#### 年龄实体
+> 1.单句预测
+```sh
+python find_age.py 
+我儿子28岁，身高175
+我儿子[二十八]{Age}岁，身高175
+```
+> 2.批量预测
+```sh
+python find_age.py --input=/path/to/inputfile --output=/path/to/outputfile
 ```
