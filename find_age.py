@@ -11,15 +11,18 @@ def hasNumbers(inputString):
 
 
 def find_age(ss):
-    exp1 = r'(\d+|\w{1,3})?岁'
+    exp1 = r'(\d+|\w{1,3})?周*岁'
     exp2 = r'年龄*(\w{1,3})'
     res1 = re.findall(exp1, ss)
     res2 = re.findall(exp2, ss)
+    # print("res1: ",res1)
+    # print("res2: ", res2)
     ans = []
     if len(res1) > 0:
         for i in res1:
             if hasNumbers(i):
-                ans.append(re.findall('\d+',i)[0])
+                if len(re.findall('\d+',i)) != 0:
+                    ans.append(re.findall('\d+',i)[0])
             else:
                 if len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                     ans.append(i)
@@ -27,7 +30,13 @@ def find_age(ss):
     elif len(res2) > 0:
         for i in res2:
             if len(re.findall('\d', i)) != 0:
-                ans.append(i)
+                f = 1
+                for c in i:
+                    if c not in "0123456789":
+                        f = 0
+                        break 
+                if f:
+                    ans.append(i)
             elif len(re.findall('[零一两二三四五六七八九十百]', i)) != 0:
                 ans.append(i)
     else: # 婴儿案例
@@ -35,11 +44,13 @@ def find_age(ss):
             idx = ss.find("个月")
             tmp = ss[max(0,idx - 3): idx]
             f = 0
-            for i in tmp:
-                if i in "0123456789零一两二三四五六七八九十百":
+            for i, c  in enumerate(tmp[::-1]):
+                if c not in "0123456789零一两二三四五六七八九十百":
+                    break 
+                if c in "0123456789零一两二三四五六七八九十百":
                     f = 1
             if f == 1:
-                ans.append(tmp)
+                ans.append(tmp[-i:])
         
     return ans
 
@@ -94,6 +105,7 @@ def predict(sents, interactive = False):
             end = len(age)
             if hasNumbers(age):# 年龄以数字的形式出现
                 age_d = age
+                # print(age_d, s)
                 start = 0
                 while not age_d[start].isdigit(): 
                     start += 1
@@ -109,7 +121,7 @@ def predict(sents, interactive = False):
                 age_d = age
                 
                 start = 0
-                print(age_d, s)
+                
                 while  age_d[start] not in "零一两二三四五六七八九十百": 
                     
                     start += 1
@@ -127,7 +139,7 @@ def predict(sents, interactive = False):
         
             begin = s.find(new_age)
             end = len(new_age)
-            # print(s, begin,end, new_age)    
+            
 
             if interactive is False:
                 write_file(s, new_age, begin, end + begin, fo)
@@ -140,21 +152,12 @@ def predict(sents, interactive = False):
 
 
 if __name__ == "__main__":
-    # s11 = "我儿子今年快28岁，身高175公分"
-    # s12 = "我儿子今年三十五，身高175公分"
-    # # s13 = "身高175， 我儿子快28了" bad case
-    # s13 = "我儿子年龄二十八，身高一七五"
-    # s14 = "我儿子今年28岁，身高175公分"
-    # s15 = "我儿子今年二十八岁，身高175公分"
-    # s16 = "我儿子二十八岁，身高175公分"
-    # s17 = "三个月的宝宝吃什么好"
-    # sents = [s11, s12 ,s13, s14, s15, s16, s17]
-
     sents = []
     if parse.input is not None and parse.output is not None:
         with open(parse.input, "r", encoding = "utf-8") as f:
             for line in f:
                 sents.append(line.strip())
+
         predict(sents, False)
     else:
         while True:

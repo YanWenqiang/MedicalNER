@@ -254,7 +254,11 @@ if __name__ == "__main__":
     if parse.input is not None and parse.output is not None:
         with open(parse.input, "r", encoding = "utf-8") as f:
             for line in f:
-                sents.append(line.strip())
+                try:
+                    _, sent = line.strip().split()
+                    sents.append(sent)
+                except:
+                    pass
         predict(sents, False)
     else:
         while True:
