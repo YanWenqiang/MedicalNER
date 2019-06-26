@@ -252,10 +252,10 @@ def predict(sents, interactive = False):
 if __name__ == "__main__":
     sents = []
     if parse.input is not None and parse.output is not None:
-        with open(parse.input, "r", encoding = "utf-8") as f:
+        with open(parse.input, "r", encoding = "gbk") as f:
             for line in f:
                 try:
-                    _, sent = line.strip().split()
+                    sent = line.strip()
                     sents.append(sent)
                 except:
                     pass
@@ -267,5 +267,3 @@ if __name__ == "__main__":
             if sent == "":
                 break
             predict([sent], True)
-    
-    

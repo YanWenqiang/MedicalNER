@@ -76,6 +76,57 @@ def convert2han(ss):
             
     return ans
 
+def convert2num(ss):
+    mapping = {
+        "零":0,
+        "一":1,
+        "二":2,
+        "三":3,
+        "四":4,
+        "五":5,
+        "六":6,
+        "七":7,
+        "八":8,
+        "九":9,
+        "十":10,
+        # "百":100,
+    }
+    if len(ss) == 1:
+        return mapping[ss]
+    elif len(ss) == 2:
+        if ss[0] == "十": # 十二
+            return 10 + mapping[ss[1]]
+        elif ss[1] == "十": # 二十
+            return 10 * mapping[ss[1]]
+        elif ss[1] == "百": # 一百
+            return 100 * mapping[ss[0]]
+        else: # 一二，不正常的表达
+            return mapping[ss[0]] * 10 + mapping[ss[1]]
+    elif len(ss) == 3: 
+        if ss[1] == "十":# 一十五，二十六
+            return mapping[ss[0]] * 10 + mapping[ss[-1]]
+        elif ss[1] == "百": # 一百二
+            return mapping[ss[0]] * 100 + mapping[ss[-1]] * 10
+        else: # 一二三, 不正常的表达
+            try:
+                mapping[ss[0]] * 100 + mapping[ss[1]] * 10 + mapping[ss[2]] 
+            except:
+                # print(ss)
+                pass
+    else: # len(ss) = 4 or len(ss) = 5
+        bai = mapping[ss[:2][0]] * 100
+        rest = ss[2:]
+        num = bai
+        if rest[0] == "零":
+            num += mapping[rest[-1]]
+        else:
+            num += mapping[rest[0]] * 10
+            if rest[-1] != "十":
+                num += mapping[rest[-1]]
+        return num
+
+
+
 def write_file(sent, age = None, start = None, end = None, fo = None):
     if age is not None:
         entity = "]{Age}"
@@ -85,7 +136,6 @@ def write_file(sent, age = None, start = None, end = None, fo = None):
         fo.write(sent + "\n") 
     else:
         print(sent)
-    
 
 
 def predict(sents, interactive = False):
@@ -112,10 +162,11 @@ def predict(sents, interactive = False):
                 end = len(age_d)
                 while not age_d[end - 1].isdigit():
                     end -= 1
-                age_d = age_d[start:end]
-                new_age = convert2han(age_d)
-                s = s.replace(age_d, new_age)
+                new_age = age_d[start:end]
                 end = len(new_age)
+                # new_age = convert2han(age_d)
+                # s = s.replace(age_d, new_age)
+                # end = len(new_age)
                 
             else: # 年龄以汉字的形式出现
                 age_d = age
@@ -130,11 +181,15 @@ def predict(sents, interactive = False):
                     end -= 1
                 age = age_d[start:end]
                 new_age = age.replace("两", "二")
-            s = s.replace(age, new_age)
+                new_age = convert2num(new_age)
+                new_age = str(new_age)
+                s = s.replace(age, new_age)
+                end = len(new_age)
+            # s = s.replace(age, new_age)
                 
             if new_age + "个月" in s: # 处理不满一岁或者一岁左右婴儿的情况,全部将婴儿换成1岁
-                s = s.replace(new_age, "一")
-                new_age = "一"
+                s = s.replace(new_age, "1")
+                new_age = "1"
                 s = s.replace("个月", "岁")
         
             begin = s.find(new_age)
