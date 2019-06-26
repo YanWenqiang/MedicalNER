@@ -36,7 +36,7 @@ python predict.py --input=/path/to/inputfile --output=/path/to/outputfile
 ```sh
 python find_age.py 
 我儿子28岁，身高175
-我儿子[二十八]{Age}岁，身高175
+我儿子[28]{Age}岁，身高175
 ```
 > 2.批量预测
 ```sh
